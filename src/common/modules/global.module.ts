@@ -1,11 +1,10 @@
 import { Global, Module } from "@nestjs/common";
-import { TranslationService } from "../services/transalation.service";
 import { User } from "@/user/entities/user.entity";
 
 @Global()
 @Module({
-  providers: [TranslationService],
-  exports: [TranslationService],
+  providers: [],
+  exports: [],
 })
 export class GlobalServicesModule {}
 

@@ -53,11 +53,11 @@ async function bootstrap(): Promise<void> {
       }),
     );
     const swaggerConfig = new DocumentBuilder()
-      .setTitle("FelizViaje Services – Documentación.")
+      .setTitle("Documentación.")
       .setDescription(
-        "Versión 19.3.0 - add version checker, fix global movement generate, search product by class, route, name",
+        "Versión 1.0.0 -",
       )
-      .setVersion("19.3.0")
+      .setVersion("1.0.0")
       .addBearerAuth(
         {
           type: "http",

@@ -11,6 +11,7 @@ import { PasswordResetService } from "./services/reset-password.service";
 import { UserService } from "@/user/services/user.service";
 import { PasswordResetToken } from "./entities/password-reset.entity";
 import { User } from "@/user/entities/user.entity";
+import { UserRepository } from "@/user/repositories/user.repository";
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { User } from "@/user/entities/user.entity";
     JwtStrategy,
     PasswordResetService,
     UserService,
+    UserRepository
   ],
   controllers: [AuthController],
   exports: [JwtModule],
