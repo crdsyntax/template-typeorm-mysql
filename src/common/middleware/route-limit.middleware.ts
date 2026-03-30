@@ -13,7 +13,7 @@ export class RateLimitMiddleware implements NestMiddleware {
     },
   });
 
-  use(req: Request, res: Response, next: NextFunction) {
+  use(req: Request, res: Response, next: NextFunction): unknown {
     return this.limiter(req, res, next);
   }
 }

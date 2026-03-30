@@ -3,9 +3,9 @@ import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 
 export function setupSwagger(app: INestApplication): void {
   const swaggerConfig = new DocumentBuilder()
-    .setTitle("FelizViaje Services – Documentación.")
-    .setDescription("Versión 19.1.0 - test signature read by app.controller")
-    .setVersion("19.1.0")
+    .setTitle("Template TypeORM MySQL – Documentación.")
+    .setDescription("Versión 0.0.1")
+    .setVersion("0.0.1")
     .addBearerAuth(
       {
         type: "http",

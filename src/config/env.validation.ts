@@ -32,7 +32,10 @@ export class EnvironmentVariables {
   @IsString()
   SWAGGER_PASSWORD: string;
 
-  // Database
+  @IsOptional()
+  @IsString()
+  DB_TYPE?: "mysql" | "postgres";
+
   @IsString()
   DB_HOST: string;
 
@@ -52,11 +55,11 @@ export class EnvironmentVariables {
   // JWT
   @IsString()
   JWT_SECRET_KEY: string;
-
-
 }
 
-export function validate(config: Record<string, unknown>): EnvironmentVariables {
+export function validate(
+  config: Record<string, unknown>,
+): EnvironmentVariables {
   const validatedConfig = plainToInstance(EnvironmentVariables, config, {
     enableImplicitConversion: true,
   });

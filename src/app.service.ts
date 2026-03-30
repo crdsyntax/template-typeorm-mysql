@@ -49,7 +49,12 @@ export interface DashboardResponse {
     env: string | undefined;
     startedAt: string;
     uptimeSeconds: number;
-    memory: { rss: number; heapTotal: number; heapUsed: number; external: number };
+    memory: {
+      rss: number;
+      heapTotal: number;
+      heapUsed: number;
+      external: number;
+    };
   };
   recentErrors: RecentErrorLog[];
 }
@@ -68,8 +73,10 @@ export class AppService {
     private readonly httpLogRepository: Repository<HttpLog>,
   ) {
     this.secret = this.configService.get<string>("GITHUB_WEBHOOK_SECRET") || "";
-    this.backendScript = this.configService.get<string>("GITHUB_SCRIPT_BACKEND") || "";
-    this.frontendScript = this.configService.get<string>("GITHUB_SCRIPT_FRONTEND") || "";
+    this.backendScript =
+      this.configService.get<string>("GITHUB_SCRIPT_BACKEND") || "";
+    this.frontendScript =
+      this.configService.get<string>("GITHUB_SCRIPT_FRONTEND") || "";
     this.webScript = this.configService.get<string>("GITHUB_SCRIPT_WEB") || "";
   }
 
@@ -77,20 +84,24 @@ export class AppService {
     if (!signature) return false;
 
     const sig = String(signature).trim();
-    const sigHex = sig.startsWith("sha256=") ? sig.slice("sha256=".length) : sig;
+    const sigHex = sig.startsWith("sha256=")
+      ? sig.slice("sha256=".length)
+      : sig;
 
     let data: Buffer | string | undefined;
     if (Buffer.isBuffer(payload)) {
-      data = payload as Buffer;
+      data = payload;
     } else if (typeof payload === "string") {
-      data = payload as string;
+      data = payload;
     } else {
       return false;
     }
 
     try {
       const hmac = crypto.createHmac("sha256", this.secret);
-      const expectedHex = hmac.update(data as unknown as crypto.BinaryLike).digest("hex");
+      const expectedHex = hmac
+        .update(data as unknown as crypto.BinaryLike)
+        .digest("hex");
 
       const received = Buffer.from(sigHex, "hex");
       const expected = Buffer.from(expectedHex, "hex");
@@ -172,7 +183,7 @@ export class AppService {
       const t0 = Date.now();
       await this.httpLogRepository.query("SELECT 1");
       databaseLatencyMs = Date.now() - t0;
-    } catch (e) {
+    } catch {
       databaseOk = false;
     }
 
@@ -180,7 +191,16 @@ export class AppService {
       where: { statusCode: 500 },
       order: { createdAt: "DESC" },
       take: 20,
-      select: ["id", "method", "url", "statusCode", "user", "ip", "errorMessage", "createdAt"],
+      select: [
+        "id",
+        "method",
+        "url",
+        "statusCode",
+        "user",
+        "ip",
+        "errorMessage",
+        "createdAt",
+      ],
     });
 
     const services = {

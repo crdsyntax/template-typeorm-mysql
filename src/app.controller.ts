@@ -13,6 +13,7 @@ import { AppService } from "./app.service";
 import os from "os";
 import { BasicAuthGuard } from "./common/guards/basic-auth.guard";
 import type { Request } from "express";
+import { GithubPushPayload } from "./app.service";
 
 @Controller("github-webhook")
 export class AppController {
@@ -25,14 +26,17 @@ export class AppController {
     @Headers("x-hub-signature-256") signature: string,
     @Body() body: Record<string, unknown>,
     @Req() _req: Request,
-  ): Promise<{ status: any; message: string } | { status: string; message: string }> {
-    const rawBody = (_req as any)?.rawBody as Buffer | undefined;
+  ): Promise<{ status: string; message: string }> {
+    const rawBody = _req.rawBody;
     const payloadForSignature = Buffer.isBuffer(rawBody)
       ? rawBody
       : typeof body === "string"
         ? (body as unknown as string)
         : JSON.stringify(body ?? "");
-    const isValid = this.webhookService.verifySignature(payloadForSignature, signature);
+    const isValid = this.webhookService.verifySignature(
+      payloadForSignature,
+      signature,
+    );
 
     if (!isValid) {
       this.logger.warn("Firma inválida detectada en el webhook.");
@@ -40,12 +44,17 @@ export class AppController {
     }
 
     if (event === "push") {
-      const result = await this.webhookService.handlePush(body as any);
-      return { status: result.status, message: result.message };
+      const result = await this.webhookService.handlePush(
+        body as unknown as GithubPushPayload,
+      );
+      return { status: String(result.status), message: result.message };
     }
 
     this.logger.log(`Evento ignorado: ${event}`);
-    return { status: "ok", message: `Evento ${event} recibido pero no manejado.` };
+    return {
+      status: "ok",
+      message: `Evento ${event} recibido pero no manejado.`,
+    };
   }
 }
 
@@ -61,7 +70,7 @@ export class StatusController {
     const db = data.services?.database ?? { ok: false, latencyMs: null };
     const recent = Array.isArray(data.recentErrors) ? data.recentErrors : [];
 
-    const memTotal = os.totalmem() / 1024 / 1024; // MB
+    const memTotal = os.totalmem() / 1024 / 1024;
     const memFree = os.freemem() / 1024 / 1024;
     const memUsed = memTotal - memFree;
     const memUsedPercent = ((memUsed / memTotal) * 100).toFixed(1);

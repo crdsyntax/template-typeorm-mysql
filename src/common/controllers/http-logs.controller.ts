@@ -9,7 +9,7 @@ export class HttpLogsController {
   constructor(private readonly httpLoggerService: HttpLoggerService) {}
 
   @Post()
-  getLogs(@Body() query: HttpLogFilterDto): Promise<any> {
+  getLogs(@Body() query: HttpLogFilterDto): Promise<unknown> {
     return this.httpLoggerService.getLogs(query);
   }
 }

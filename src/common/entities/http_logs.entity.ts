@@ -21,13 +21,13 @@ export class HttpLog {
   user: string;
 
   @Column({ type: "json", nullable: true })
-  body: Record<string, any>;
+  body: Record<string, unknown>;
 
   @Column({ type: "json", nullable: true })
-  query: Record<string, any>;
+  query: Record<string, unknown>;
 
   @Column({ type: "json", nullable: true })
-  params: Record<string, any>;
+  params: Record<string, unknown>;
 
   @Column({ type: "int", nullable: true })
   statusCode: number;
@@ -50,7 +50,7 @@ export class HttpLog {
   @Column({ type: "text", nullable: true })
   errorMessage?: string;
 
-  @Column({ type: "longtext", nullable: true })
+  @Column({ type: "text", nullable: true })
   errorStack?: string;
 
   @CreateDateColumn()

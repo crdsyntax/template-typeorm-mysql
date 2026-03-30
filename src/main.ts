@@ -3,13 +3,17 @@ import { AppModule } from "./app.module";
 import { join } from "path";
 import express from "express";
 import { ConfigService } from "@nestjs/config";
-import { ClassSerializerInterceptor, Logger, INestApplication } from "@nestjs/common";
+import {
+  ClassSerializerInterceptor,
+  Logger,
+  INestApplication,
+} from "@nestjs/common";
 import { setupGlobalValidation } from "./bootstrap/validation";
 import { setupCors } from "./bootstrap/cors";
 import { setupPassport } from "./bootstrap/passport";
 import basicAuth from "express-basic-auth";
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { GlobalExceptionFilter } from "./common/filters/globalCatch.filter";
+import { setupSwagger } from "./bootstrap/swagger";
 const logger = new Logger("Bootstrap");
 
 export enum envMode {
@@ -18,7 +22,9 @@ export enum envMode {
 }
 
 async function bootstrap(): Promise<void> {
-  const app: INestApplication = await NestFactory.create(AppModule, { bodyParser: false });
+  const app: INestApplication = await NestFactory.create(AppModule, {
+    bodyParser: false,
+  });
   const configService = app.get(ConfigService);
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.use("/uploads", express.static(join(__dirname, "..", "uploads")));
@@ -27,7 +33,7 @@ async function bootstrap(): Promise<void> {
     "/github-webhook",
     express.json({
       verify: (req, _res, buf) => {
-        (req as any).rawBody = buf;
+        req.rawBody = buf;
       },
     }),
   );
@@ -39,9 +45,7 @@ async function bootstrap(): Promise<void> {
   setupCors(app, configService);
   setupPassport(app);
 
-  if (
-    configService.get<string>("NODE_ENV")?.toLowerCase() === (envMode.DEV.toLowerCase() as string)
-  ) {
+  if (configService.get<string>("NODE_ENV") === (envMode.DEV as string)) {
     app.use(
       ["api/doc", "/docs-json"],
       basicAuth({
@@ -52,35 +56,8 @@ async function bootstrap(): Promise<void> {
         },
       }),
     );
-    const swaggerConfig = new DocumentBuilder()
-      .setTitle("Documentación.")
-      .setDescription(
-        "Versión 1.0.0 -",
-      )
-      .setVersion("1.0.0")
-      .addBearerAuth(
-        {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-          name: "Authorization",
-          description: "Ingrese el token de autenticación JWT",
-          in: "header",
-        },
-        "access-token",
-      )
-      .build();
 
-    const document = SwaggerModule.createDocument(app, swaggerConfig);
-
-    SwaggerModule.setup("api/doc", app, document, {
-      swaggerOptions: {
-        docExpansion: "none",
-        persistAuthorization: true,
-        tagsSorter: "alpha",
-        operationsSorter: "alpha",
-      },
-    });
+    setupSwagger(app);
     logger.debug(`🚀 swagger cargado.`);
   }
 

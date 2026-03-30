@@ -1,15 +1,15 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { AuthService } from "./services/auth.service";
-import { LocalStrategy } from "./local.strategy";
+import { AuthService } from "./services/auth.service.js";
+import { LocalStrategy } from "./strategies/local.strategy.js";
 import { JwtModule } from "@nestjs/jwt";
-import { JwtStrategy } from "./jwt.strategy";
+import { JwtStrategy } from "./strategies/jwt.strategy.js";
 import { PassportModule } from "@nestjs/passport";
-import { AuthController } from "./controllers/auth.controller";
+import { AuthController } from "./controllers/auth.controller.js";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { PasswordResetService } from "./services/reset-password.service";
+import { PasswordResetService } from "./services/reset-password.service.js";
 import { UserService } from "@/user/services/user.service";
-import { PasswordResetToken } from "./entities/password-reset.entity";
+import { PasswordResetToken } from "./entities/password-reset.entity.js";
 import { User } from "@/user/entities/user.entity";
 import { UserRepository } from "@/user/repositories/user.repository";
 
@@ -32,7 +32,7 @@ import { UserRepository } from "@/user/repositories/user.repository";
     JwtStrategy,
     PasswordResetService,
     UserService,
-    UserRepository
+    UserRepository,
   ],
   controllers: [AuthController],
   exports: [JwtModule],

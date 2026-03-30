@@ -16,7 +16,10 @@ export class VersionCheckerController {
 
   @Patch(":id/update")
   markVersionUpdated(@Param("id") id: number): Promise<VersionEntity> {
-    return this.versionService.updateVersionStatus(Number(id), VersionStatus.UPDATED);
+    return this.versionService.updateVersionStatus(
+      Number(id),
+      VersionStatus.UPDATED,
+    );
   }
 
   @Get("current")

@@ -13,7 +13,10 @@ export class VersionService {
 
   async createVersion(data: CreateVersionDto): Promise<VersionEntity> {
     const prevVersions = await this.versionRepository.find({
-      where: [{ status: VersionStatus.PENDING }, { status: VersionStatus.UPDATED }],
+      where: [
+        { status: VersionStatus.PENDING },
+        { status: VersionStatus.UPDATED },
+      ],
     });
 
     for (const prev of prevVersions) {
@@ -29,7 +32,10 @@ export class VersionService {
     return this.versionRepository.save(newVersion);
   }
 
-  async updateVersionStatus(id: number, status: VersionStatus): Promise<VersionEntity> {
+  async updateVersionStatus(
+    id: number,
+    status: VersionStatus,
+  ): Promise<VersionEntity> {
     const version = await this.versionRepository.findOne({ where: { id } });
     if (!version) throw new Error("Version not found");
 

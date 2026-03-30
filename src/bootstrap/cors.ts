@@ -2,7 +2,10 @@ import { envMode } from "@/main";
 import { INestApplication } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
-export function setupCors(app: INestApplication, configService: ConfigService): void {
+export function setupCors(
+  app: INestApplication,
+  configService: ConfigService,
+): void {
   const allowedOrigins =
     configService.get<string>("NODE_ENV") === (envMode.PROD as string)
       ? [configService.get<string>("APP_HOST") || ""]

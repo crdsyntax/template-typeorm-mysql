@@ -11,7 +11,7 @@ import { AppService } from "./app.service";
 import { AppController, StatusController } from "./app.controller";
 import { HttpLog } from "./common/entities/http_logs.entity";
 import { BasicAuthGuard } from "./common/guards/basic-auth.guard";
-import { UserModule } from './user/user.module';
+import { UserModule } from "./user/user.module";
 
 @Module({
   imports: [
@@ -29,14 +29,17 @@ import { UserModule } from './user/user.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        type: "mysql",
+        type: configService.get<"mysql" | "postgres">("DB_TYPE") || "mysql",
         host: configService.get<string>("DB_HOST"),
         port: configService.get<number>("DB_PORT"),
         username: configService.get<string>("DB_USERNAME"),
         password: configService.get<string>("DB_PASSWORD"),
         database: configService.get<string>("DB_DATABASE"),
         cache: true,
-        entities: [`${__dirname}/**/*.entity{.ts,.js}`, `${__dirname}/**/*.view{.ts,.js}`],
+        entities: [
+          `${__dirname}/**/*.entity{.ts,.js}`,
+          `${__dirname}/**/*.view{.ts,.js}`,
+        ],
         subscribers: [`${__dirname}/**/*.subscriber{.ts,.js}`],
         synchronize: configService.get<string>("NODE_ENV") === "local",
       }),

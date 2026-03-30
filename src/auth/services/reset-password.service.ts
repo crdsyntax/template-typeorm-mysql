@@ -1,12 +1,15 @@
-import { Injectable, BadRequestException, NotFoundException } from "@nestjs/common";
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from "@nestjs/common";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 
 import * as bcrypt from "bcrypt";
-/* import { MailerService } from "@nestjs-modules/mailer"; */
 import { randomInt } from "crypto";
 import { PasswordResetToken } from "../entities/password-reset.entity";
-import { UserService } from "@/user/services/user.service";
+import { UserService } from "../../user/services/user.service.js";
 
 @Injectable()
 export class PasswordResetService {
@@ -38,11 +41,14 @@ export class PasswordResetService {
     const codeHash = await bcrypt.hash(code, this.BCRYPT_SALT_ROUNDS);
     const expiresAt = new Date(Date.now() + this.CODE_TTL_MINUTES * 60 * 1000);
 
-    await this.tokenRepo.update({ userId: Number(user.id), used: false }, { used: true });
+    await this.tokenRepo.update(
+      { userId: user.id, used: false },
+      { used: true },
+    );
 
     const tokenEntity = this.tokenRepo.create({
-      user,
-      userId: Number(user.id),
+      user: user,
+      userId: user.id,
       codeHash,
       expiresAt,
       used: false,
@@ -50,11 +56,15 @@ export class PasswordResetService {
 
     await this.tokenRepo.save(tokenEntity);
 
-    await this.sendCodeEmail(user.email, code, expiresAt);
+    //await this.sendCodeEmail(user.email, code, expiresAt);
   }
 
-  private async sendCodeEmail(to: string, code: string, expiresAt: Date): Promise<void> {
-    /*     const subject = "Código para recuperar contraseña";
+  /*  private async sendCodeEmail(
+    _to: string,
+    _code: string,
+    _expiresAt: Date,
+  ): Promise<void> {
+         const subject = "Código para recuperar contraseña";
     const text = `Tu código para recuperar la contraseña es: ${code}\n\nEl código expira a las ${expiresAt.toLocaleString()}. Si no solicitaste este código, ignora este mensaje.`;
     await this.mailerService.sendMail({
       to,
@@ -64,22 +74,28 @@ export class PasswordResetService {
              <h2>${code}</h2>
              <p>Expira: ${expiresAt.toLocaleString()}</p>
              <p>Si no solicitaste este código, ignora este mensaje.</p>`,
-    }); */
-  }
+    });
+  } */
 
-  async confirmPasswordReset(email: string, code: string, newPassword: string): Promise<void> {
+  async confirmPasswordReset(
+    email: string,
+    code: string,
+    newPassword: string,
+  ): Promise<void> {
     const user = await this.usersService.findOneByEmail(email);
     if (!user) {
       throw new NotFoundException("Usuario no encontrado");
     }
 
     const token = await this.tokenRepo.findOne({
-      where: { userId: Number(user.id), used: false },
+      where: { userId: user.id, used: false },
       order: { createdAt: "DESC" },
     });
 
     if (!token) {
-      throw new BadRequestException("No hay un código válido para este usuario");
+      throw new BadRequestException(
+        "No hay un código válido para este usuario",
+      );
     }
 
     if (token.expiresAt.getTime() < Date.now()) {
@@ -93,7 +109,7 @@ export class PasswordResetService {
       throw new BadRequestException("Código inválido");
     }
 
-    /* await this.usersService.updatePassword(user.id, newPassword); */
+    await this.usersService.updatePassword(user.id, newPassword);
 
     token.used = true;
     await this.tokenRepo.save(token);

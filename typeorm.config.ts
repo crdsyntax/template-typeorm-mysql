@@ -5,7 +5,7 @@ import { join } from "path";
 config();
 
 export default new DataSource({
-  type: "mysql",
+  type: (process.env.DB_TYPE as "mysql" | "postgres") ?? "mysql",
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT ?? "3306"),
   username: process.env.DB_USERNAME,

@@ -8,7 +8,7 @@ import {
   JoinColumn,
 } from "typeorm";
 
-@Entity("tb_password_reset_tokens")
+@Entity("password_reset_tokens")
 export class PasswordResetToken {
   @PrimaryGeneratedColumn()
   id: number;

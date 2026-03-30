@@ -11,12 +11,21 @@ export class UserRepository {
     @InjectRepository(User) private readonly repo: Repository<User>,
   ) {}
 
-  create(createDto: CreateUserDto) {
+  create(createDto: CreateUserDto): Promise<User> {
     const entity = this.repo.create(createDto);
     return this.repo.save(entity);
   }
 
-  async findAll(page: number, limit: number) {
+  async findAll(
+    page: number,
+    limit: number,
+  ): Promise<{
+    data: User[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
     const skip = (page - 1) * limit;
     const [data, total] = await this.repo.findAndCount({ skip, take: limit });
     return {
@@ -28,19 +37,21 @@ export class UserRepository {
     };
   }
 
-  findOneBy(params: Partial<User>) {
+  findOneBy(params: Partial<User>): Promise<User | null> {
     return this.repo.findOneBy(params);
   }
 
-  findOne(id: number) {
+  findOne(id: number): Promise<User | null> {
     return this.repo.findOneBy({ id });
   }
 
-  update(id: number, updateDto: UpdateUserDto) {
-    return this.repo.update(id, updateDto);
+  async update(id: number, updateDto: UpdateUserDto): Promise<User | null> {
+    await this.repo.update(id, updateDto);
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return this.repo.delete(id);
+  async remove(id: number): Promise<boolean> {
+    const result = await this.repo.delete(id);
+    return (result.affected ?? 0) > 0;
   }
 }

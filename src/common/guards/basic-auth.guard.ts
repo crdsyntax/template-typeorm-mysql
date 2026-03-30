@@ -1,17 +1,26 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { Request, Response } from "express";
 
 @Injectable()
 export class BasicAuthGuard implements CanActivate {
   constructor(private readonly configService: ConfigService) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest();
-    const response = context.switchToHttp().getResponse();
+    const request: Request = context.switchToHttp().getRequest();
+    const response: Response = context.switchToHttp().getResponse();
     const setWwwAuthenticate = (): void => {
       try {
         if (response && typeof response.setHeader === "function") {
-          response.setHeader("WWW-Authenticate", 'Basic realm="FelizViaje", charset="UTF-8"');
+          response.setHeader(
+            "WWW-Authenticate",
+            'Basic realm="FelizViaje", charset="UTF-8"',
+          );
         }
       } catch {
         // ignore header setting errors
